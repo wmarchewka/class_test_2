@@ -9,13 +9,14 @@ class Commander(object):
             print("Creating instance class {}".format(cls.instance))
         return cls.instance
 
-    def __init__(self, commander):
+    def __init__(self, logger):
         self.init = True
-        self.commander = commander
-        self.log = self.commander.log
+        self.logger = logger
+        self.log = self.logger.log
         self.log = logging.getLogger(__name__)
         self.log.debug("{} init complete...".format(__name__))
 
-
     def parsescreen(self, value):
         self.log.debug("Commander received value {}".format(value))
+
+

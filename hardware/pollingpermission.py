@@ -12,11 +12,12 @@ class Pollingpermission(object):
 
     def __init__(self, commander):
         self.init = True
-        self.log = commander.log
+        self.commander = commander
+        self.logger = self.commander.logger
+        self.log = self.logger.log
         self.log = logging.getLogger(__name__)
         self.polling_prohibited = (True, self.__class__)
         self.log.debug("{} init complete...".format(__name__))
-
 
     @property
     def polling_prohibited(self):

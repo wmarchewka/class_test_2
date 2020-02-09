@@ -18,12 +18,14 @@ class Gpio(object):
 
     def __init__(self, config, commander):
         self.init = True
-        self.GPIO = Gpio.__gpio
-        self.log = commander.log
-        self.log = logging.getLogger(__name__)
         self.config = config
+        self.commander = commander
+        self.logger = self.commander.logger
+        self.log = self.logger.log
+        self.GPIO = Gpio.__gpio
+        self.log = logging.getLogger(__name__)
         self.check_connection()
-        self.get_status()
+        self.get_io_status()
         self.log.debug("{} init complete...".format(__name__))
 
     def shutdown(self):
@@ -69,7 +71,7 @@ class Gpio(object):
         else:
             self.log.debug('PIGPIO connected...')
 
-    def get_status(self):
+    def get_io_status(self):
         try:
             self.log.debug('Getting IO status...')
             self.log.debug("gpio STATUS: Pins(0-31) {}  Pins(32-54)  {}   ".format(bin(self.GPIO.read_bank_1()),

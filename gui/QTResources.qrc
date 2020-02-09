@@ -1,0 +1,57 @@
+<RCC>
+  <qresource prefix="FONTS">
+      <file>FONTS/SiemensSans_Global_Bold.ttf</file>
+      <file>FONTS/SiemensSans_Global_BoldItalic.ttf</file>
+      <file>FONTS/SiemensSans_Global_Italic.ttf</file>
+      <file>FONTS/SiemensSans_Global_JPN_Bold.ttf</file>
+      <file>FONTS/SiemensSans_Global_JPN_BoldItalic.ttf</file>
+      <file>FONTS/SiemensSans_Global_JPN_Italic.ttf</file>
+      <file>FONTS/SiemensSans_Global_JPN_Roman.ttf</file>
+      <file>FONTS/SiemensSans_Global_Roman.ttf</file>
+      <file>FONTS/SiemensSans_Prof_Black.ttf</file>
+      <file>FONTS/SiemensSans_Prof_BlackItalic.ttf</file>
+      <file>FONTS/SiemensSans_Prof_Bold.ttf</file>
+      <file>FONTS/SiemensSans_Prof_BoldItalic.ttf</file>
+      <file>FONTS/SiemensSans_Prof_Italic.ttf</file>
+      <file>FONTS/SiemensSans_Prof_Roman.ttf</file>
+      <file>FONTS/SiemensSansCond_Global.ttf</file>
+      <file>FONTS/SiemensSerif_Prof_Bold.ttf</file>
+      <file>FONTS/SiemensSerif_Prof_BoldItalic.ttf</file>
+      <file>FONTS/SiemensSerif_Prof_Italic.ttf</file>
+      <file>FONTS/SiemensSerif_Prof_Roman.ttf</file>
+      <file>FONTS/SiemensSerif_Prof_Semibold.ttf</file>
+      <file>FONTS/SiemensSerif_Prof_SemiboldItalic.ttf</file>
+      <file>FONTS/SiemensSlab_Prof_Black.ttf</file>
+      <file>FONTS/SiemensSlab_Prof_BlackItalic.ttf</file>
+      <file>FONTS/SiemensSlab_Prof_Bold.ttf</file>
+      <file>FONTS/SiemensSlab_Prof_BoldItalic.ttf</file>
+      <file>FONTS/SiemensSlab_Prof_Italic.ttf</file>
+      <file>FONTS/SiemensSlab_Prof_Roman.ttf</file>
+    <file>FONTS/digital-7.ttf</file>
+    <file>FONTS/digital-7 (italic).ttf</file>
+    <file>FONTS/digital-7 (mono).ttf</file>
+    <file>FONTS/digital-7 (mono italic).ttf</file>
+    <file>FONTS/Courier.dfont</file>
+    <file>FONTS/Arial.ttf</file>
+    <file>FONTS/Arial Italic.ttf</file>
+    <file>FONTS/Arial Bold.ttf</file>
+    <file>FONTS/Arial Bold Italic.ttf</file>
+  </qresource>
+  <qresource prefix="Graphics">
+    <file>SiemensGraphics/EPS/Siemens_321.eps</file>
+    <file>SiemensGraphics/EPS/Siemens_C.eps</file>
+    <file>SiemensGraphics/EPS/Siemens_K.eps</file>
+    <file>SiemensGraphics/EPS/Siemens_R.eps</file>
+    <file>SiemensGraphics/JPG/Siemens_C_cmyk.jpg</file>
+    <file>SiemensGraphics/JPG/Siemens_C_rgb.jpg</file>
+    <file>SiemensGraphics/JPG/Siemens_K_cmyk.jpg</file>
+    <file>SiemensGraphics/JPG/Siemens_K_rgb.jpg</file>
+    <file>SiemensGraphics/PNG/Siemens_K.png</file>
+  </qresource>
+  <qresource prefix="ICONS">
+    <file>ICONS/up 64 x 64.png</file>
+    <file>ICONS/down 64 x 64.png</file>
+    <file>ICONS/down.png</file>
+    <file>ICONS/up.png</file>
+  </qresource>
+</RCC>

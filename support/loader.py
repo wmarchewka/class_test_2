@@ -6,6 +6,10 @@ from support import config
 from support import logger
 from gui import gui
 from support import commander
+from hardware import speedgenerator
+from hardware import decoder
+from support import coderategenerator
+from hardware import spi
 
 class Loader(object):
 
@@ -15,11 +19,11 @@ class Loader(object):
         commander_class = commander.Commander(logger_class)
         pollingpermission_class = pollingpermission.Pollingpermission(commander_class)
         gpio_class = gpio.Gpio(config_class, commander_class)
-        rotary_class = rotary.Rotary(pollingpermission_class, gpio_class)
-        print(rotary_class.__dict__)
-
-
-        gui_class = gui.Mainwindow(commander_class)
-
+        decoder_class =  decoder.Decoder(config_class, gpio_class)
+        spi_class = spi.SPI(config_class, decoder_class, pollingpermission_class)
+        coderategenerator_class = coderategenerator.Coderategenerator(config_class, spi_class ,gpio_class)
+        speedgenerator_class = speedgenerator.Speedgenerator(commander_class, config_class, decoder_class, coderategenerator_class)
+        rotary_class = rotary.Rotary(pollingpermission_class, gpio_class, config_class, speedgenerator_class)
+        gui_class = gui.Mainwindow(commander_class, config_class)
 
 
