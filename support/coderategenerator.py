@@ -15,6 +15,7 @@ class Coderategenerator(object):
         self.log = logging.getLogger(__name__)
         self.spi = spi
         self.gpio = gpio.GPIO
+        self.coderate_stop()
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument('-signal', nargs="+", type=int)
         self.args = self.parser.parse_args()
@@ -60,6 +61,7 @@ class Coderategenerator(object):
             self.gpio.set_mode(self.toggle_pin, pigpio.OUTPUT)
         except:
             self.log.exception("EXCEPTION in coderate_initialization")
+
 
     def pulsecodes_pb(self, company):
         self.log.debug("Reading pulsecode PB data from INI file for company  {}".format(company))
