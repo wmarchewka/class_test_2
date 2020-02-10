@@ -1,4 +1,5 @@
 import faulthandler
+
 faulthandler.enable()
 import datetime
 import logging
@@ -8,7 +9,7 @@ import socket
 import subprocess
 import sys
 import threading
-#import psutil
+import psutil
 import numpy as np
 from numpy import sin, pi
 
@@ -20,8 +21,8 @@ from PySide2.QtWidgets import QTableWidgetItem
 from communication.communication import ThreadedTCPRequestHandler, ThreadedTCPServer
 from gui.signalsslots import Signalslots as signalslots
 
-class Mainwindow(QObject):
 
+class Mainwindow(QObject):
     display_brightness = None
     guiname = None
     poll_timer_interval = None
@@ -31,21 +32,20 @@ class Mainwindow(QObject):
     screen_brightness_max = None
     screen_brightness_min = None
 
-
-    def __init__(self, commander, config, digitalpots, securitylevel):
+    def __init__(self, config, digitalpots, securitylevel, gpio):
         super(Mainwindow, self).__init__()
         self.window = None
-        self.commander = commander
         self.config = config
         self.digitalpots = digitalpots
         self.securitylevel = securitylevel
-        self.logger = commander.logger
+        #self.pollvalues = pollvalues
+        self.gpio = gpio
+        self.logger = config.logger
         self.log = self.logger.log
         self.log = logging.getLogger(__name__)
-        self.signalslots = signalslots()
+        self.signalslots = signalslots(self.log)
         self.startup_processes()
         self.log.debug("{} init complete...".format(__name__))
-
 
     def startup_processes(self):
         self.config_file_load()
@@ -54,14 +54,13 @@ class Mainwindow(QObject):
         self.exit_signalling()
         self.log.info('Waking screen...')
         subprocess.call('xset dpms force on', shell=True)  # WAKE SCREEN
-        #self.pollingpermission.polling_prohibited = (False, self.__module__)
-        #self.comm_server_start()
-        #self.eeprom_read_data()
-        #self.ip_address_query()
         self.securitylevel.index_tab_pages(self.window)
         self.securitylevel.set_security_level("technician", self.window)  # SET SECURITY LEVEL
-        #self.set_frequencies(self)  # send frequency values to frequency generators
-        self.timers()
+        # self.comm_server_start()
+        # self.eeprom_read_data()
+        # self.ip_address_query()
+        # self.set_frequencies(self)  # send frequency values to frequency generators
+        # self.timers()
 
     def config_file_load(self):
         Mainwindow.display_brightness = self.config.display_brightness
@@ -671,20 +670,7 @@ class Mainwindow(QObject):
         for family in f_db.families():
             print(family)
 
-        # ************************************************************************************
-        # load from configuration file
-
-    def ini_file_load(self):
-        self.display_brightness = self.config.getint('MAIN', 'screen_brightness')
-        self.guiname = self.config.get('MAIN', 'gui')
-        self.poll_timer_interval = self.config.getint('MAIN', 'poll_timer_interval')
-        self.local_timer_interval = self.config.getint('MAIN', 'local_timer_interval')
-        self.sense_timer_interval = self.config.getfloat('MAIN', 'sense_timer_interval')
-        self.switch_timer_interval = self.config.getint('MAIN', 'switch_timer_interval')
-        self.screen_brightness_max = self.config.getint('MAIN', 'screen_brightness_max')
-        self.screen_brightness_min = self.config.getint('MAIN', 'screen_brightness_min')
-
-        # ************************************************************************************
+    # ************************************************************************************
 
     def ip_address_query(self):
         try:
@@ -928,97 +914,7 @@ class Mainwindow(QObject):
         self.window.LBL_primary_gain_percent.setText("{0:.3%}".format(self.digitalpots.wiper_total_percentage[0]))
         self.window.LBL_secondary_gain_percent.setText("{0:.3%}".format(self.digitalpots.wiper_total_percentage[1]))
 
-        # ************************************************************************************
 
-    def poll_callback_change_value(self, counts, analog_digital_value, scaled_value, switch_value):
-        self.sense_callback_change_value(counts, analog_digital_value, scaled_value)
-        self.switches_callback_change_value(switch_value)
-
-        # ************************************************************************************
-        # call back from current_sense poll
-
-    def sense_callback_change_value(self, counts, analog_digital_value, scaled_value):
-        self.log.debug('GUI received sense values...')
-        self.log.debug(
-            'SENSE CALLBACK SCALED VALUE:  {}    ANALOG VALUE  {}  :'.format(scaled_value, analog_digital_value))
-        self.log.debug("A/D value: {} ({}V  {} counts)".format(analog_digital_value, scaled_value, counts))
-        self.thread_info()
-        self.sense_callback_loop_counter = self.sense_callback_loop_counter + 1
-        if self.calibration_complete:
-            self.log.debug("Need to scale the output based on the calibration data obtained")
-        else:
-            if self.sense_callback_loop_counter == 10:
-                self.adc_average = self.adc_average / (self.sense_callback_loop_counter - 1)
-                self.adc_average = self.adc_average * 1000
-                self.final_adc_value = self.adc_average
-                self.display_amps = (self.adc_scale * self.final_adc_value)
-                self.window.LBL_display_adc.setText("{:4.2f}".format(self.adc_average))
-                self.display_amps = self.display_amps / 1000
-                self.window.LBL_display_amps.setText("{:2.3f}".format(self.display_amps))
-                self.window.LBL_loop_current_1.setText("{:2.3f}".format(self.display_amps))
-                self.window.LBL_display_adc_counts.setText("{:5.0f}".format(counts))
-                self.adc_average = 0
-                self.sense_callback_loop_counter = 0
-            else:
-                self.adc_average = self.adc_average + analog_digital_value
-
-        # ************************************************************************************
-        # call back from switch_polling
-
-    def switches_callback_change_value(self, value):
-        self.log.debug("onSwitchChangeValues :{}".format(value))
-        if value & 0b00000001:
-            self.window.switch3_green.setVisible(True)
-            self.window.switch3_red.setVisible(False)
-        else:
-            self.window.switch3_green.setVisible(False)
-            self.window.switch3_red.setVisible(True)
-        if value & 0b00000010:
-            self.window.switch4_green.setVisible(True)
-            self.window.switch4_red.setVisible(False)
-        else:
-            self.window.switch4_green.setVisible(False)
-            self.window.switch4_red.setVisible(True)
-        if value & 0b00000100:
-            self.window.switch5_green.setVisible(True)
-            self.window.switch5_red.setVisible(False)
-        else:
-            self.window.switch5_green.setVisible(False)
-            self.window.switch5_red.setVisible(True)
-        if value & 0b00001000:
-            self.window.switch6_green.setVisible(True)
-            self.window.switch6_red.setVisible(False)
-        else:
-            self.window.switch6_green.setVisible(False)
-            self.window.switch6_red.setVisible(True)
-
-        if self.switches.primary_gain_pb_status == "ON":
-            self.window.LBL_primary_gain_pb_status.setText("ON")
-            self.digitalpots.gains_locked = False
-            self.window.LBL_frequency_selected.setText("SEC")
-        if self.switches.primary_gain_pb_status == "OFF":
-            self.window.LBL_primary_gain_pb_status.setText("OFF")
-            self.digitalpots.gains_locked = False
-        if self.switches.primary_gain_pb_status == "CODERATE":
-            self.window.LBL_primary_gain_pb_status.setText("CODERATE")
-            self.digitalpots.gains_locked = False
-        if self.switches.primary_gain_pb_status == "LOCKED":
-            self.window.LBL_primary_gain_pb_status.setText("LOCKED")
-            self.digitalpots.gains_locked = True
-        self.primary_gain_pb_status = "NONE"
-
-        if self.switches.secondary_gain_pb_status == "ON":
-            self.window.LBL_secondary_gain_pb_status.setText("ON")
-        if self.switches.secondary_gain_pb_status == "OFF":
-            self.window.LBL_secondary_gain_pb_status.setText("OFF")
-        if self.switches.secondary_gain_pb_status == "CODERATE":
-            self.window.LBL_secondary_gain_pb_status.setText("CODERATE")
-        if self.switches.secondary_gain_pb_status == "LOCKED":
-            self.window.LBL_secondary_gain_pb_status.setText("LOCKED")
-        self.secondary_gain_pb_status = "NONE"
-
-        # self.lcd_switches.display(switch_value)
-        self.thread_info()
 
         # ************************************************************************************
         # call back from CODE RATE CHANGE

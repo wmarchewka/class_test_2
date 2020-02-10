@@ -107,7 +107,6 @@ class Config(object):
 
         # CODERATE
         self.code_rate_generator_toggle_pin = self.config.getint('CODE RATE', 'code_rate_mux_pin')
-        self.log.debug("{} init complete...".format(__name__))
 
         #GUI
         self.display_brightness = self.config.getint('MAIN', 'screen_brightness')
@@ -118,3 +117,14 @@ class Config(object):
         self.switch_timer_interval = self.config.getint('MAIN', 'switch_timer_interval')
         self.screen_brightness_max = self.config.getint('MAIN', 'screen_brightness_max')
         self.screen_brightness_min = self.config.getint('MAIN', 'screen_brightness_min')
+
+        self.log.debug("{} init complete...".format(__name__))
+
+    # **************************************************************************
+    def configuration_save(self, section, key, value):
+        self.config.set(section, key, value)
+        with open(self.config_file_path, 'w') as cf:
+            self.config.write(cf)
+        cf.close()
+        self.log.info(
+            "Configuration.ini updated: SECTION:{}  KEY:{}  VALUE:{}".format(section, key, value))

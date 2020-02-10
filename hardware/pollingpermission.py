@@ -10,18 +10,18 @@ class Pollingpermission(object):
             logger.log.debug("Creating instance class {}".format(cls.instance))
         return cls.instance
 
-    def __init__(self, commander):
+    def __init__(self, logger):
+        self._polling_prohibited = False
         self.init = True
-        self.commander = commander
-        self.logger = self.commander.logger
+        self.logger = logger
         self.log = self.logger.log
         self.log = logging.getLogger(__name__)
-        self.polling_prohibited = (True, self.__class__)
+        self.polling_prohibited = (False, self.__class__)
         self.log.debug("{} init complete...".format(__name__))
 
     @property
     def polling_prohibited(self):
-        self.log.debug("STATUS of Polling Prohibited: {}".format(self._polling_prohibited))
+        self.log.debug("Polling Prohibited: {}".format(self._polling_prohibited))
         return self._polling_prohibited
 
     @polling_prohibited.setter

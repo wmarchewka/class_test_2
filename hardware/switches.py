@@ -2,13 +2,15 @@ import logging
 import time
 #*******************************************************
 class Switches(object):
-    def __init__(self, spi, gains):
+    def __init__(self, spi, gains, gpio, coderategenerator, digitalpots):
         # todo: place info in ini file
 
         self.spi = spi
         self.decoder = self.spi.decoder
         self.gains = gains
-        self.gpio = self.decoder.gpio
+        self.gpio = gpio
+        self.coderategenerator = coderategenerator
+        self.digitalpots = digitalpots
         self.log = logging.getLogger(__name__)
         self.log.debug("Switches initializing...")
         self.switch_address = 0
@@ -176,25 +178,25 @@ class Switches(object):
 
         if self.primary_gain_push_type == "FAST":
             if self.primary_gain_pb_status_counter == 1:
-                self.digital_pots.gains_locked = False
+                self.digitalpots.gains_locked = False
                 self.primary_gain_pb_status = "ON"
                 self.gpio.GPIO.wave_tx_stop()
-                self.gpio.GPIO.write(self.code_rate_generator.toggle_pin, 0)
+                self.gpio.GPIO.write(self.coderategenerator.toggle_pin, 0)
                 self.secondary_gain_pb_status = "OFF"
                 self.gains.secondary_gain_off()
             if self.primary_gain_pb_status_counter == 2:
-                self.digital_pots.gains_locked = False
+                self.digitalpots.gains_locked = False
                 self.primary_gain_pb_status = "OFF"
                 self.gains.primary_gain_off()
             if self.primary_gain_pb_status_counter == 3:
-                self.digital_pots.gains_locked = False
+                self.digitalpots.gains_locked = False
                 self.primary_gain_pb_status = "CODERATE"
                 self.secondary_gain_pb_status = "CODERATE"
-                self.gpio.GPIO.wave_send_repeat(self.code_rate_generator.waveform1)
+                self.gpio.GPIO.wave_send_repeat(self.coderategenerator.waveform1)
                 self.gains.primary_gain_set_ohms(self.gains.primary_gain_saved_value)
                 self.gains.secondary_gain_set_ohms(self.gains.secondary_gain_saved_value)
             if self.primary_gain_pb_status_counter == 4:
-                self.digital_pots.gains_locked = True
+                self.digitalpots.gains_locked = True
                 self.primary_gain_pb_status = "LOCKED"
                 self.secondary_gain_pb_status = "LOCKED"
             self.log.info("PRIMARY GAIN PB COUNTER:{}  STATUS: {}".format(self.primary_gain_pb_status_counter,
@@ -206,25 +208,25 @@ class Switches(object):
 
         if self.secondary_gain_push_type == "FAST":
             if self.secondary_gain_pb_status_counter == 1:
-                self.digital_pots.gains_locked = False
+                self.digitalpots.gains_locked = False
                 self.secondary_gain_pb_status = "ON"
                 self.gpio.GPIO.wave_tx_stop()
-                self.gpio.GPIO.write(self.code_rate_generator.toggle_pin, 1)
+                self.gpio.GPIO.write(self.coderategenerator.toggle_pin, 1)
                 self.primary_gain_pb_status = "OFF"
                 self.gains.primary_gain_off()
             if self.secondary_gain_pb_status_counter == 2:
-                self.digital_pots.gains_locked = False
+                self.digitalpots.gains_locked = False
                 self.secondary_gain_pb_status = "OFF"
                 self.gains.secondary_gain_off()
             if self.secondary_gain_pb_status_counter == 3:
-                self.digital_pots.gains_locked = False
+                self.digitalpots.gains_locked = False
                 self.secondary_gain_pb_status = "CODERATE"
                 self.primary_gain_pb_status = "CODERATE"
-                self.gpio.GPIO.wave_send_repeat(self.code_rate_generator.waveform1)
+                self.gpio.GPIO.wave_send_repeat(self.coderategenerator.waveform1)
                 self.gains.primary_gain_set_ohms(self.gains.primary_gain_saved_value)
                 self.gains.secondary_gain_set_ohms(self.gains.secondary_gain_saved_value)
             if self.secondary_gain_pb_status_counter == 4:
-                self.digital_pots.gains_locked = True
+                self.digitalpots.gains_locked = True
                 self.secondary_gain_pb_status = "LOCKED"
                 self.primary_gain_pb_status = "LOCKED"
             self.log.info("SECONDARY GAIN PB COUNTER:{}  STATUS: {}".format(self.secondary_gain_pb_status_counter,
