@@ -94,9 +94,6 @@ class Speedgenerator(object):
         self.speed2_actual_freq = self.SPEED_FREQUENCY[1]
         self.log.debug('SIGGEN Speed 1 Actual Freq: {}'.format(self.speed1_actual_freq))
         self.log.debug('SIGGEN Speed 2 Actual Freq: {}'.format(self.speed2_actual_freq))
-        self.coderategenerator.frequency_to_registers(self.SPEED_FREQUENCY[self.speed_reg],
-                                                      self.primary_source_frequency,
-                                                      self.freq_shape[self.speed_reg], cs)
         if cs == self.SPEED_0_CS:
             return self.speed1_actual_freq
         if cs == self.SPEED_1_CS:

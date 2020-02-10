@@ -25,7 +25,7 @@ class Rotary(object):
     DIGITAL_POT_0 = 0
     DIGITAL_POT_1 = 1
 
-    def __init__(self, pollingpermission, gpio, config, speedgenerator, digitalpots):
+    def __init__(self, pollingpermission, gpio, config, speedgenerator, digitalpots, coderategenerator):
 
         self.init = True
         self.gpio = gpio
@@ -35,6 +35,7 @@ class Rotary(object):
         self.pollingpermission = pollingpermission
         self.logger = self.pollingpermission.logger
         self.digitalpots = digitalpots
+        self.coderategenerator = coderategenerator
         self.spi = self.digitalpots.spi
         self.log = self.logger.log
         self.log = logging.getLogger(__name__)
@@ -261,6 +262,7 @@ class Rotary(object):
     #*****************************************************************************************************
     # ENCODER SPEED 1				BCM14
     def rotary_0_pin_1(self, pin_num, level, tick, simulate=False, sim_pins=None):
+        self.rotary_interrupts(False)
         self.log.debug("#######################################################")
         self.log.debug("SPEED ENCODER 1 Rotary 1 BCM PIN:{}  LEVEL:{}   TICK:{}".format(pin_num, level, tick))
         self.pollingpermission.polling_prohitied = (True, __name__)
@@ -284,6 +286,7 @@ class Rotary(object):
     #*****************************************************************************************************
     # ENCODER SPEED 2				BMC15
     def rotary_1_pin_0(self, pin_num, level, tick, simulate=False, sim_pins=None):
+        self.rotary_interrupts(False)
         self.log.debug("#######################################################")
         self.log.debug("SPEED ENCODER 2 Rotary 1 BCM PIN:{}  LEVEL:{}   TICK:{}".format(pin_num, level, tick))
         self.pollingpermission.polling_prohitied = (True, __name__)
@@ -305,6 +308,7 @@ class Rotary(object):
     # *****************************************************************************************************
     # ENCODER SPEED 2				BMC22
     def rotary_1_pin_1(self, pin_num, level, tick, simulate=False, sim_pins=None):
+        self.rotary_interrupts(False)
         self.log.debug("#######################################################")
         self.log.debug("SPEED ENCODER 2 Rotary 1 BCM PIN:{}  LEVEL:{}   TICK:{}".format(pin_num, level, tick))
         self.pollingpermission.polling_prohitied = (True, __name__)
@@ -326,6 +330,7 @@ class Rotary(object):
     # *****************************************************************************************************
     # ENCODER PRIMARY GAIN			BMC23
     def rotary_2_pin_0(self, pin_num, level, tick, simulate=False, sim_pins=None):
+        self.rotary_interrupts(False)
         self.log.debug("#######################################################")
         self.log.debug("PRIMARY GAIN Rotary 2 BCM PIN:{}  LEVEL:{}   TICK:{}".format(pin_num, level, tick))
         self.pollingpermission.polling_prohitied = (True, __name__)
@@ -347,6 +352,7 @@ class Rotary(object):
     # *****************************************************************************************************
     # ENCODER PRIMARY GAIN			BCM24
     def rotary_2_pin_1(self, pin_num, level, tick, simulate=False, sim_pins=None):
+        self.rotary_interrupts(False)
         self.log.debug("#######################################################")
         self.log.debug("PRIMARY GAIN Rotary 2 BCM PIN:{}  LEVEL:{}   TICK:{}".format(pin_num, level, tick))
         self.pollingpermission.polling_prohitied = (True, __name__)
@@ -368,6 +374,7 @@ class Rotary(object):
     # *****************************************************************************************************
     # ENCODER SECONDARY GAIN			BCM25
     def rotary_3_pin_0(self, pin_num, level, tick, simulate=False, sim_pins=None):
+        self.rotary_interrupts(False)
         self.log.debug("#######################################################")
         self.log.debug("PRIMARY GAIN Rotary 3 BCM PIN:{}  LEVEL:{}   TICK:{}".format(pin_num, level, tick))
         self.pollingpermission.polling_prohitied = (True, __name__)
@@ -389,6 +396,7 @@ class Rotary(object):
     # *****************************************************************************************************
     # ENCODER SECONDARY GAIN			BCM12
     def rotary_3_pin_1(self, pin_num, level, tick, simulate=False, sim_pins=None):
+        self.rotary_interrupts(False)
         self.log.debug("#######################################################")
         self.log.debug("PRIMARY GAIN Rotary 3 BCM PIN:{}  LEVEL:{}   TICK:{}".format(pin_num, level, tick))
         self.pollingpermission.polling_prohitied = (True, __name__)
@@ -408,11 +416,13 @@ class Rotary(object):
         self.rotary_actions(pins, delta, Rotary.rotary_num[3], Rotary.DIGITAL_POT_0)
 
     #*****************************************************************************************************
-    def rotary_actions(self, pins, delta, rotary_num, digital_pot=None, chip_select=None):
+    #TODO make sure we are pssing data correctly to this when something is missing
+    def rotary_actions(self, pins, delta, rotary_num, chip_select=None, digital_pot=None):
         if rotary_num == 0 or rotary_num == 1:
             direction = self.get_direction(pins, Rotary.rotary_num[rotary_num])
             speed = self.get_speed(delta)
             self.speed_signal_changed(chip_select, speed, direction)
+
         if rotary_num == 2 or rotary_num == 3:
             direction = self.get_direction(pins, Rotary.rotary_num[rotary_num])
             speed = self.get_speed(delta)
@@ -423,6 +433,11 @@ class Rotary(object):
         self.log.debug(
             'Speed value changed - Received Speed:{}  Direction:{}  CS:{}'.format(speed, direction, cs))
         self.speedgenerator.set_speed_signal(cs, speed, direction)
+        ret = self.coderategenerator.frequency_to_registers(self.speedgenerator.SPEED_FREQUENCY[self.speedgenerator.speed_reg],
+                                                      self.speedgenerator.primary_source_frequency,
+                                                      self.speedgenerator.freq_shape[self.speedgenerator.speed_reg], cs)
+        #self.spi.write(2, self.spi_msg, cs)
+        self.spi.write(ret)
 
     # *****************************************************************************************************
     def digital_pot_value_changed(self, speed, direction, potnumber):

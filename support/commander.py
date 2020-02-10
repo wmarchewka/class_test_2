@@ -36,7 +36,7 @@ class Commander(object):
     def startup_processes(self):
         self.read_config_file()
         self.timer_init()
-        self.timer_start()
+        #self.timer_start()
         self.window = self.gui.window
 
     # *********************************************************************************
